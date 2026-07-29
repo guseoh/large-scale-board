@@ -1,0 +1,43 @@
+services:
+  mysql:
+    image: mysql:8.4.11
+    container_name: large-scale-board-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: UTC
+
+    ports:
+      - "${DB_PORT:-3307}:3306"  # 호스트 포트:컨테이너 포트
+
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-time-zone=+00:00
+
+    volumes:
+      - mysql-data:/var/lib/mysql # 컨테이너를 제거해도 mysql-data 볼륨을 제거하지 않으면 데이터 유지
+
+    healthcheck:                  # mysqladmin ping을 반복 실행해서 MySQL이 연결 가능한 상태인지 확인
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
+
+    networks:
+      - board-network
+
+volumes:
+  mysql-data:
+
+networks:
+  board-network:
+    driver: bridge
