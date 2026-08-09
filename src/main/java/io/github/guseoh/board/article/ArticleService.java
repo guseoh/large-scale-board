@@ -2,8 +2,9 @@ package io.github.guseoh.board.article;
 
 import io.github.guseoh.board.article.domain.Article;
 import io.github.guseoh.board.article.domain.ArticleRepository;
-import io.github.guseoh.board.article.web.ArticleRequest;
+import io.github.guseoh.board.article.web.ArticleCreateRequest;
 import io.github.guseoh.board.article.web.ArticleResponse;
+import io.github.guseoh.board.article.web.ArticleUpdateRequest;
 import io.github.guseoh.board.comment.domain.CommentRepository;
 import io.github.guseoh.board.global.exception.ForbiddenException;
 import io.github.guseoh.board.global.exception.NotFoundException;
@@ -11,27 +12,21 @@ import io.github.guseoh.board.like.domain.ArticleLikeRepository;
 import io.github.guseoh.board.member.MemberService;
 import io.github.guseoh.board.member.domain.Member;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ArticleService {
     private final ArticleRepository articles;
     private final ArticleLikeRepository likes;
     private final CommentRepository comments;
     private final MemberService members;
 
-    public ArticleService(ArticleRepository articles, ArticleLikeRepository likes,
-                          CommentRepository comments, MemberService members) {
-        this.articles = articles;
-        this.likes = likes;
-        this.comments = comments;
-        this.members = members;
-    }
-
     @Transactional
-    public ArticleResponse create(String username, ArticleRequest.Create request) {
+    public ArticleResponse create(String username, ArticleCreateRequest request) {
         Article article = new Article(members.find(username), request.title(), request.content());
         return response(articles.save(article));
     }
@@ -45,7 +40,7 @@ public class ArticleService {
     }
 
     @Transactional
-    public ArticleResponse update(Long id, String username, ArticleRequest.Update request) {
+    public ArticleResponse update(Long id, String username, ArticleUpdateRequest request) {
         Article article = owned(id, username);
         article.update(request.title(), request.content());
         return response(article);

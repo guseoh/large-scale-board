@@ -1,6 +1,7 @@
 package io.github.guseoh.board.like.web;
 
 import io.github.guseoh.board.like.ArticleLikeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,12 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/articles/{articleId}/likes")
+@RequiredArgsConstructor
 public class ArticleLikeController {
     private final ArticleLikeService service;
-
-    public ArticleLikeController(ArticleLikeService service) {
-        this.service = service;
-    }
 
     @PostMapping
     public ResponseEntity<LikeResponse> create(@PathVariable Long articleId,

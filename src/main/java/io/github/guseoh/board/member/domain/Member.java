@@ -2,9 +2,14 @@ package io.github.guseoh.board.member.domain;
 
 import io.github.guseoh.board.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "members")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,9 +22,6 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String password;
 
-    protected Member() {
-    }
-
     public Member(String username, String email, String password) {
         this.username = username;
         this.email = email;
@@ -30,19 +32,4 @@ public class Member extends BaseTimeEntity {
         this.email = email;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
 }

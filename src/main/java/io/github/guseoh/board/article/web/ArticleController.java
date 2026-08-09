@@ -4,6 +4,7 @@ import io.github.guseoh.board.article.ArticleService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,16 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/articles")
+@RequiredArgsConstructor
 public class ArticleController {
     private final ArticleService service;
 
-    public ArticleController(ArticleService service) {
-        this.service = service;
-    }
-
     @PostMapping
     public ResponseEntity<ArticleResponse> create(@AuthenticationPrincipal UserDetails user,
-                                                  @Valid @RequestBody ArticleRequest.Create request) {
+                                                  @Valid @RequestBody ArticleCreateRequest request) {
         ArticleResponse response = service.create(user.getUsername(), request);
         return ResponseEntity.created(URI.create("/api/articles/" + response.id())).body(response);
     }
@@ -44,7 +42,7 @@ public class ArticleController {
 
     @PutMapping("/{id}")
     public ArticleResponse update(@PathVariable Long id, @AuthenticationPrincipal UserDetails user,
-                                  @Valid @RequestBody ArticleRequest.Update request) {
+                                  @Valid @RequestBody ArticleUpdateRequest request) {
         return service.update(id, user.getUsername(), request);
     }
 

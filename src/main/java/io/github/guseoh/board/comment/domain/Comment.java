@@ -4,9 +4,14 @@ import io.github.guseoh.board.article.domain.Article;
 import io.github.guseoh.board.global.entity.BaseTimeEntity;
 import io.github.guseoh.board.member.domain.Member;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "comments")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +28,6 @@ public class Comment extends BaseTimeEntity {
     @Column(nullable = false, length = 1000)
     private String content;
 
-    protected Comment() {
-    }
-
     public Comment(Article article, Member member, String content) {
         this.article = article;
         this.member = member;
@@ -36,19 +38,4 @@ public class Comment extends BaseTimeEntity {
         this.content = content;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Article getArticle() {
-        return article;
-    }
-
-    public Member getMember() {
-        return member;
-    }
-
-    public String getContent() {
-        return content;
-    }
 }

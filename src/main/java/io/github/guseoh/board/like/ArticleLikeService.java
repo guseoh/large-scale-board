@@ -9,21 +9,17 @@ import io.github.guseoh.board.like.domain.ArticleLikeRepository;
 import io.github.guseoh.board.like.web.LikeResponse;
 import io.github.guseoh.board.member.MemberService;
 import io.github.guseoh.board.member.domain.Member;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ArticleLikeService {
     private final ArticleLikeRepository likes;
     private final ArticleService articles;
     private final MemberService members;
-
-    public ArticleLikeService(ArticleLikeRepository likes, ArticleService articles, MemberService members) {
-        this.likes = likes;
-        this.articles = articles;
-        this.members = members;
-    }
 
     @Transactional
     public LikeResponse create(Long articleId, String username) {

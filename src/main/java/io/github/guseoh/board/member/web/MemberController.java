@@ -3,6 +3,7 @@ package io.github.guseoh.board.member.web;
 import io.github.guseoh.board.member.MemberService;
 import jakarta.validation.Valid;
 import java.net.URI;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,15 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/members")
+@RequiredArgsConstructor
 public class MemberController {
     private final MemberService service;
 
-    public MemberController(MemberService service) {
-        this.service = service;
-    }
-
     @PostMapping
-    public ResponseEntity<MemberResponse> create(@Valid @RequestBody MemberRequest.Create request) {
+    public ResponseEntity<MemberResponse> create(@Valid @RequestBody MemberCreateRequest request) {
         MemberResponse response = service.create(request);
         return ResponseEntity.created(URI.create("/api/members/" + response.id())).body(response);
     }
@@ -36,7 +34,7 @@ public class MemberController {
 
     @PutMapping("/me")
     public MemberResponse update(@AuthenticationPrincipal UserDetails user,
-                                 @Valid @RequestBody MemberRequest.Update request) {
+                                 @Valid @RequestBody MemberUpdateRequest request) {
         return service.update(user.getUsername(), request);
     }
 

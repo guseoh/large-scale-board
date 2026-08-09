@@ -3,9 +3,14 @@ package io.github.guseoh.board.article.domain;
 import io.github.guseoh.board.global.entity.BaseTimeEntity;
 import io.github.guseoh.board.member.domain.Member;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "articles")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Article extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,9 +26,6 @@ public class Article extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    protected Article() {
-    }
-
     public Article(Member member, String title, String content) {
         this.member = member;
         this.title = title;
@@ -35,19 +37,4 @@ public class Article extends BaseTimeEntity {
         this.content = content;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Member getMember() {
-        return member;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getContent() {
-        return content;
-    }
 }

@@ -4,6 +4,9 @@ import io.github.guseoh.board.article.domain.Article;
 import io.github.guseoh.board.global.entity.BaseTimeEntity;
 import io.github.guseoh.board.member.domain.Member;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(
@@ -13,6 +16,8 @@ import jakarta.persistence.*;
                 columnNames = {"article_id", "member_id"}
         )
 )
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ArticleLike extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,23 +31,9 @@ public class ArticleLike extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    protected ArticleLike() {
-    }
-
     public ArticleLike(Article article, Member member) {
         this.article = article;
         this.member = member;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Article getArticle() {
-        return article;
-    }
-
-    public Member getMember() {
-        return member;
-    }
 }

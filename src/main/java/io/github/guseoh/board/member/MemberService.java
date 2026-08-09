@@ -4,25 +4,23 @@ import io.github.guseoh.board.global.exception.ConflictException;
 import io.github.guseoh.board.global.exception.NotFoundException;
 import io.github.guseoh.board.member.domain.Member;
 import io.github.guseoh.board.member.domain.MemberRepository;
-import io.github.guseoh.board.member.web.MemberRequest;
+import io.github.guseoh.board.member.web.MemberCreateRequest;
 import io.github.guseoh.board.member.web.MemberResponse;
+import io.github.guseoh.board.member.web.MemberUpdateRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository members;
     private final PasswordEncoder passwordEncoder;
 
-    public MemberService(MemberRepository members, PasswordEncoder passwordEncoder) {
-        this.members = members;
-        this.passwordEncoder = passwordEncoder;
-    }
-
     @Transactional
-    public MemberResponse create(MemberRequest.Create request) {
+    public MemberResponse create(MemberCreateRequest request) {
         if (members.existsByUsername(request.username()) || members.existsByEmail(request.email())) {
             throw new ConflictException("Username or email already exists");
         }
@@ -35,7 +33,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse update(String username, MemberRequest.Update request) {
+    public MemberResponse update(String username, MemberUpdateRequest request) {
         Member member = find(username);
         if (!member.getEmail().equals(request.email()) && members.existsByEmail(request.email())) {
             throw new ConflictException("Email already exists");
