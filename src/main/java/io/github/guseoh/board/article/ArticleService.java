@@ -14,16 +14,64 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service @Transactional(readOnly = true)
+@Service
+@Transactional(readOnly = true)
 public class ArticleService {
-    private final ArticleRepository articles; private final ArticleLikeRepository likes; private final CommentRepository comments; private final MemberService members;
-    public ArticleService(ArticleRepository articles, ArticleLikeRepository likes, CommentRepository comments, MemberService members) { this.articles = articles; this.likes = likes; this.comments = comments; this.members = members; }
-    @Transactional public ArticleResponse create(String username, ArticleRequest.Create request) { Article article = articles.save(new Article(members.find(username), request.title(), request.content())); return response(article); }
-    public List<ArticleResponse> findAll() { return articles.findAllByOrderByIdDesc().stream().map(this::response).toList(); }
-    public ArticleResponse findOne(Long id) { return response(find(id)); }
-    @Transactional public ArticleResponse update(Long id, String username, ArticleRequest.Update request) { Article article = owned(id, username); article.update(request.title(), request.content()); return response(article); }
-    @Transactional public void delete(Long id, String username) { Article article = owned(id, username); likes.deleteAllByArticleId(id); comments.deleteAllByArticleId(id); articles.delete(article); }
-    public Article find(Long id) { return articles.findById(id).orElseThrow(() -> new NotFoundException("Article not found")); }
-    private Article owned(Long id, String username) { Article article = find(id); if (!article.getMember().getUsername().equals(username)) throw new ForbiddenException("Article owner required"); return article; }
-    private ArticleResponse response(Article article) { return ArticleResponse.from(article, likes.countByArticleId(article.getId())); }
+    private final ArticleRepository articles;
+    private final ArticleLikeRepository likes;
+    private final CommentRepository comments;
+    private final MemberService members;
+
+    public ArticleService(ArticleRepository articles, ArticleLikeRepository likes,
+                          CommentRepository comments, MemberService members) {
+        this.articles = articles;
+        this.likes = likes;
+        this.comments = comments;
+        this.members = members;
+    }
+
+    @Transactional
+    public ArticleResponse create(String username, ArticleRequest.Create request) {
+        Article article = new Article(members.find(username), request.title(), request.content());
+        return response(articles.save(article));
+    }
+
+    public List<ArticleResponse> findAll() {
+        return articles.findAllByOrderByIdDesc().stream().map(this::response).toList();
+    }
+
+    public ArticleResponse findOne(Long id) {
+        return response(find(id));
+    }
+
+    @Transactional
+    public ArticleResponse update(Long id, String username, ArticleRequest.Update request) {
+        Article article = owned(id, username);
+        article.update(request.title(), request.content());
+        return response(article);
+    }
+
+    @Transactional
+    public void delete(Long id, String username) {
+        Article article = owned(id, username);
+        likes.deleteAllByArticleId(id);
+        comments.deleteAllByArticleId(id);
+        articles.delete(article);
+    }
+
+    public Article find(Long id) {
+        return articles.findById(id).orElseThrow(() -> new NotFoundException("Article not found"));
+    }
+
+    private Article owned(Long id, String username) {
+        Article article = find(id);
+        if (!article.getMember().getUsername().equals(username)) {
+            throw new ForbiddenException("Article owner required");
+        }
+        return article;
+    }
+
+    private ArticleResponse response(Article article) {
+        return ArticleResponse.from(article, likes.countByArticleId(article.getId()));
+    }
 }
