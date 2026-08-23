@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration(proxyBeanMethods = false)
@@ -43,5 +45,13 @@ public class SecurityConfig {
                         .accessDeniedHandler(securityErrorHandler));
         return http.build();
 
+    }
+
+    /*
+        DelegatingPasswordEncoder는 저장된 문자열 앞의 {id}를 통해 어떤 알고리즘으로 검증할지 선택한다.
+     */
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }

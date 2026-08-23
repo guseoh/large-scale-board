@@ -25,8 +25,8 @@ class DatabaseSchemaContractTest {
         MigrationInfo current = flyway.info().current();
 
         assertThat(current).isNotNull();
-        assertThat(current.getVersion().getVersion()).isEqualTo("1");
-        assertThat(current.getDescription()).isEqualTo("baseline");
+        assertThat(current.getVersion().getVersion()).isEqualTo("2");
+        assertThat(current.getDescription()).isEqualTo("create members");
     }
 
     @Test
