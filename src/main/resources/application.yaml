@@ -1,34 +1,30 @@
 spring:
   application:
     name: large-scale-board
-<<<<<<< HEAD
 
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:${DB_PORT:3307}/${DB_NAME:large_scale_board}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${DB_USERNAME:board}
     password: ${DB_PASSWORD:board-password}
 
-  sql:                    # Spring Boot가 애플리케이셔 시작 시 SQL 초기화 스크립트를 자동 실행하지 않도록 막아주는 설정
+  sql:
     init:
       mode: never
 
   jpa:
-    open-in-view: false   # 데이터 접근 범위를 명시적으로 관리하기 위한 설정
-
+    open-in-view: false
     hibernate:
-      ddl-auto: validate  # 유효성 검사만 수행, 엔티티와 스키마가 맞는지 거증
-
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
-
         jdbc:
           time_zone: UTC
 
-  flyway:                 # 스키마 생성과 변경
+  flyway:
     enabled: true
     locations: classpath:db/migration
-    validate-on-ligrate: true
+    validate-on-migrate: true
     clean-disabled: true
 
   lifecycle:
@@ -44,14 +40,7 @@ management:
         include:
           - health
           - info
-          - -metrics
-
+          - metrics
   endpoint:
     health:
       show-details: never
-=======
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    open-in-view: false
->>>>>>> 9e9ecca5b3ea6a33574b1841baa3bec61c179ea6
