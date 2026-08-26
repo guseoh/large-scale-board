@@ -3,35 +3,25 @@ spring:
     name: large-scale-board
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:${DB_PORT:3307}/${DB_NAME:large_scale_board}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${DB_URL:jdbc:mysql://localhost:${DB_PORT:3310}/${DB_NAME:large_scale_board}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
     username: ${DB_USERNAME:board}
     password: ${DB_PASSWORD:board-password}
-
-  sql:
-    init:
-      mode: never
 
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
         jdbc:
           time_zone: UTC
 
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    validate-on-migrate: true
-    clean-disabled: true
-
-  lifecycle:
-    timeout-per-shutdown-phase: 20s
-
 server:
+  port: ${SERVER_PORT:8081}
   shutdown: graceful
+
+spring.lifecycle.timeout-per-shutdown-phase: 20s
 
 management:
   endpoints:
