@@ -31,6 +31,9 @@ logging:
 board:
   logging:
     access-enabled: true
+  snowflake:
+    # 0~1023. 인스턴스마다 달라야 한다. 1023은 datagen이 쓴다.
+    node-id: ${BOARD_NODE_ID:0}
 
 management:
   endpoints:
