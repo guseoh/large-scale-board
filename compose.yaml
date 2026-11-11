@@ -1,3 +1,13 @@
+# 로컬 실험 환경. 앱은 0~3단계 동안 호스트에서 bootRun으로 띄운다(포트 8081).
+# 이미지 태그는 고정한다. 버전이 바뀌면 실험 수치를 비교할 수 없다. (Step-0-Design 9절)
+#
+#   기동:       docker compose up -d
+#   부하 실행:  docker compose --profile loadtest run --rm k6 run --tag testid=<이름> /scripts/scenarios/ping.js
+
+# 볼륨 이름(large-scale-board_mysql-data)을 폴더 이름과 무관하게 고정한다.
+# 보관·복원 스크립트가 이 이름에 의존한다.
+name: large-scale-board
+
 services:
   mysql:
     image: mysql:8.4.11
@@ -10,12 +20,35 @@ services:
       TZ: UTC
     ports:
       - "${DB_PORT:-3310}:3306"
+    # 설정 파일을 /etc/mysql/conf.d에 바로 마운트하지 않는다. Windows에서 마운트한 파일은 권한이
+    # 777로 보여서 MySQL이 "World-writable config file ... is ignored"를 내고 무시한다
+    # (compose configs의 mode도 적용되지 않는다). 그래서 기동할 때마다 컨테이너 안으로 복사해
+    # 권한을 644로 바꾼 뒤 원래 엔트리포인트를 실행한다. 매번 복사하므로 board.cnf를 고친 뒤
+    # 재시작만 하면 반영된다.
+    entrypoint:
+      - sh
+      - -c
+      - install -m 0644 /opt/board/conf.d/board.cnf /etc/mysql/conf.d/board.cnf && exec docker-entrypoint.sh "$$@"
+      - --
     command:
+      - mysqld
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_0900_ai_ci
       - --default-time-zone=+00:00
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./infra/mysql/conf.d:/opt/board/conf.d:ro
+      - ./infra/mysql/init:/docker-entrypoint-initdb.d:ro
+      # datagen이 만든 CSV를 LOAD DATA INFILE로 읽는 폴더(secure_file_priv).
+      # 서버는 이 폴더 밖의 파일을 읽지 않는다. 읽기 전용(:ro)으로 두면 MySQL 엔트리포인트가
+      # 이 폴더의 소유자를 바꾸다 실패해 기동하지 못한다.
+      - ./data/csv:/var/lib/mysql-files
+    # 앱은 호스트에서 제한 없이 돈다. 0~3단계의 병목이 MySQL 쪽에서 먼저 나타나도록 의도한 구성이다.
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1536M
     healthcheck:
       test:
         [
@@ -27,5 +60,80 @@ services:
       retries: 20
       start_period: 20s
 
+  mysqld-exporter:
+    image: prom/mysqld-exporter:v0.21.0
+    container_name: large-scale-board-mysqld-exporter
+    # 접속 정보는 실행 인자(주소, 계정)와 환경 변수(비밀번호)로 준다. 비밀번호를 인자에 넣으면 ps로
+    # 보인다.
+    command:
+      - --mysqld.address=mysql:3306
+      - --mysqld.username=exporter
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: ${EXPORTER_PASSWORD:-exporter-password}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    container_name: large-scale-board-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      # k6가 결과를 밀어 넣는(remote write) 경로를 연다.
+      - --web.enable-remote-write-receiver
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus:/etc/prometheus:ro
+      - prometheus-data:/prometheus
+    extra_hosts:
+      # 호스트에서 bootRun으로 띄운 앱(8081)을 수집하려고 연다. Docker Desktop에는 기본으로 있지만
+      # Linux에도 맞춘다.
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    image: grafana/grafana:13.3.0
+    container_name: large-scale-board-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      # 혼자 쓰는 로컬 환경이라 로그인 없이 관리자 권한으로 연다.
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      # 데이터 소스와 대시보드를 파일에서 읽는다. 볼륨을 지워도 같은 대시보드가 다시 뜬다. (D0-14)
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  k6:
+    image: grafana/k6:2.3.0
+    container_name: large-scale-board-k6
+    # 필요할 때만 실행한다. `docker compose up`으로는 뜨지 않는다.
+    profiles: ["loadtest"]
+    environment:
+      K6_OUT: experimental-prometheus-rw
+      K6_PROMETHEUS_RW_SERVER_URL: http://prometheus:9090/api/v1/write
+      K6_PROMETHEUS_RW_TREND_STATS: "p(50),p(95),p(99),avg,max"
+      BASE_URL: ${BASE_URL:-http://host.docker.internal:8081}
+    volumes:
+      - ./loadtest:/scripts:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # 같은 장비에서 부하 생성기가 MySQL의 CPU를 빼앗으면 결과가 흔들린다.
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+    depends_on:
+      - prometheus
+
 volumes:
   mysql-data:
+  prometheus-data:
+  grafana-data:

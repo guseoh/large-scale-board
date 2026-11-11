@@ -1,0 +1,17 @@
+# batch 프로필: H-01 방식 B, B', C에서만 켠다. 방식과 프로필이 맞지 않으면 H01Loader가 실행을
+# 거부한다.
+spring:
+  datasource:
+    # rewriteBatchedStatements=true: 드라이버가 배치로 모은 INSERT 1,000개를 여러 행을 한 번에 넣는
+    # INSERT 문장 하나로 바꿔 보낸다. 네트워크 왕복과 문장 해석이 1,000분의 1로 준다.
+    url: ${DB_URL:jdbc:mysql://localhost:${DB_PORT:3310}/${DB_NAME:large_scale_board}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&rewriteBatchedStatements=true}
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          # Hibernate가 INSERT를 1,000개까지 모아 JDBC 배치로 보낸다. 묶음
+          # 크기(datagen.chunk-size)와 같게 둔다.
+          batch_size: 1000
+        # 엔티티 종류별로 INSERT를 모아 배치가 끊기지 않게 한다. 이 실험은 엔티티가 하나라 영향이
+        # 작다.
+        order_inserts: true

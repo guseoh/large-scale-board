@@ -1,7 +1,10 @@
 // Snowflake ID의 비트 구성과 생성기만 담는 순수 Java 라이브러리. (D0-01, D0-09)
-// 앱과 datagen이 함께 쓴다. Spring에 의존하지 않으므로 Spring 플러그인을 적용하지 않는다.
+// 앱과 datagen이 함께 쓴다. 런타임 의존성은 하나도 없다.
 plugins {
 	id 'java-library'
+	// 테스트 라이브러리(JUnit, AssertJ) 버전을 앱과 같은 Spring Boot BOM으로 맞추려고만 쓴다.
+	// BOM은 버전만 정하고 의존성을 추가하지 않으므로 Spring이 라이브러리에 섞이지 않는다.
+	id 'io.spring.dependency-management'
 }
 
 group = 'io.github.guseoh'
@@ -15,6 +18,18 @@ java {
 
 repositories {
 	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+	}
+}
+
+dependencies {
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	testImplementation 'org.assertj:assertj-core'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {

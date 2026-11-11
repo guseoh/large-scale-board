@@ -3,9 +3,25 @@ spring:
     name: large-scale-board
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:${DB_PORT:3310}/${DB_NAME:large_scale_board}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    # 타임아웃은 0단계 MySQL 중단 장애 훈련으로 정했다(Issue #3, Wiki ADR-007).
+    #   connectTimeout=3000  TCP 연결을 3초 안에 못 맺으면 포기한다.
+    #   socketTimeout=10000  응답이 10초 동안 오지 않으면 끊는다. MySQL이 멈춰(pause) 응답이
+    #                        없을 때 요청 스레드가 무한히 매달리지 않게 한다. 10초보다 오래
+    #                        걸리는 쿼리도 끊기므로, 느린 쿼리를 일부러 재는 실험에서는 이 값을
+    #                        늘리고 실험 기록에 적는다.
+    url: ${DB_URL:jdbc:mysql://localhost:${DB_PORT:3310}/${DB_NAME:large_scale_board}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&connectTimeout=3000&socketTimeout=10000}
     username: ${DB_USERNAME:board}
     password: ${DB_PASSWORD:board-password}
+    hikari:
+      # 기본값(10)이지만 실험 조건으로 기록하고 이후 단계에서 바꾸는 변수라 명시한다.
+      maximum-pool-size: 10
+      # 커넥션을 1초 안에 못 얻으면 포기하고 503 DB_UNAVAILABLE을 준다(기본 30초).
+      # 리틀의 법칙: 기다리는 요청 수 = 초당 요청 x 대기 시간. 초당 100건이면 30초는 3,000개,
+      # 3초는 300개가 Tomcat 스레드(200)를 다 차지해 DB와 무관한 API까지 멈췄다.
+      # 1초면 100개라 여유가 남는다.
+      connection-timeout: 1000
+      # 빌려줄 커넥션이 살아 있는지 확인하는 시간. connection-timeout보다 짧아야 한다(기본 5초).
+      validation-timeout: 750
 
   jpa:
     open-in-view: false
@@ -20,19 +36,35 @@ spring:
 server:
   port: ${SERVER_PORT:8081}
   shutdown: graceful
+  tomcat:
+    threads:
+      # 기본값(200)이지만 실험 조건으로 기록하려고 명시한다.
+      max: 200
+    mbeanregistry:
+      # Tomcat 스레드 지표(tomcat_threads_busy_threads 등)를 내려면 MBean 등록을 켜야 한다.
+      # 기본은 꺼져 있다.
+      enabled: true
 
 spring.lifecycle.timeout-per-shutdown-phase: 20s
 
 logging:
   pattern:
-    # Spring Boot 기본 로그 패턴의 상관관계 ID 자리에 MDC traceId를 넣는다. 추적 필터 밖의 스레드에서는 빈 괄호다.
+    # Spring Boot 기본 로그 패턴의 상관관계 ID 자리에 MDC traceId를 넣는다.
+    # 추적 필터 밖의 스레드에서는 빈 괄호다.
     correlation: "[%X{traceId:-}] "
 
 board:
   logging:
     access-enabled: true
+  snowflake:
+    # 0~1023. 인스턴스마다 달라야 한다. 1023은 datagen이 쓴다.
+    node-id: ${BOARD_NODE_ID:0}
 
 management:
+  server:
+    # 지표·헬스 엔드포인트를 요청 포트(8081)와 다른 포트에 둔다. Tomcat 스레드 풀이 따로라서,
+    # 요청 처리 스레드가 고갈돼도 Prometheus가 지표를 계속 수집할 수 있다(0단계 장애 훈련에서 발견).
+    port: ${MANAGEMENT_PORT:8082}
   endpoints:
     web:
       exposure:
@@ -40,6 +72,16 @@ management:
           - health
           - info
           - metrics
+          - prometheus
   endpoint:
     health:
       show-details: never
+  metrics:
+    tags:
+      # 모든 지표에 붙는다. 대시보드와 알림 규칙이 이 값으로 앱 지표를 고른다.
+      application: board
+    distribution:
+      percentiles-histogram:
+        # 응답 시간을 버킷별 개수로 내보낸다. 인스턴스가 여러 대여도 Prometheus가 합쳐서
+        # p99를 계산할 수 있다. 대가는 시계열 수 증가(URI·상태 조합마다 버킷 수십 개). (D0-13)
+        http.server.requests: true
