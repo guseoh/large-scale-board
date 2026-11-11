@@ -1,0 +1,35 @@
+// 데이터 생성기. 웹 서버 없이 실행하는 Spring Boot 프로그램이다. (D0-01)
+// H-01 실험에서 JPA 적재 방식을 재야 하므로 JPA를 쓴다.
+// 플러그인 버전은 루트 build.gradle에서 이미 정했으므로 여기서는 적지 않는다.
+plugins {
+	id 'java'
+	id 'org.springframework.boot'
+	id 'io.spring.dependency-management'
+}
+
+group = 'io.github.guseoh'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation project(':board-id')
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

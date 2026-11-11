@@ -1,0 +1,22 @@
+// Snowflake ID의 비트 구성과 생성기만 담는 순수 Java 라이브러리. (D0-01, D0-09)
+// 앱과 datagen이 함께 쓴다. Spring에 의존하지 않으므로 Spring 플러그인을 적용하지 않는다.
+plugins {
+	id 'java-library'
+}
+
+group = 'io.github.guseoh'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

@@ -18,6 +18,8 @@ repositories {
 }
 
 dependencies {
+	implementation project(':board-id')
+
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -35,6 +37,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
 	testImplementation 'org.testcontainers:testcontainers-mysql'
+	// 아키텍처 규칙(R1~R6). JUnit 확장(archunit-junit5) 없이 코어만 써서 규칙을 일반 JUnit 테스트로 실행한다.
+	testImplementation 'com.tngtech.archunit:archunit:1.5.1'
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
