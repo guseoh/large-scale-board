@@ -16,7 +16,7 @@ groups:
           severity: critical
         annotations:
           summary: "MySQL에 접속할 수 없다"
-          runbook: "Wiki: 런북-MySQL-중단"
+          runbook: "https://github.com/guseoh/large-scale-board/wiki/Runbook-MySQL-Down"
 
       - alert: AppDown
         # Prometheus가 앱의 /actuator/prometheus를 수집하지 못하면 0이 된다.

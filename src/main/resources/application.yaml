@@ -3,7 +3,7 @@ spring:
     name: large-scale-board
 
   datasource:
-    # 타임아웃은 0단계 MySQL 중단 장애 훈련으로 정했다(docs/drill-mysql-draft.md).
+    # 타임아웃은 0단계 MySQL 중단 장애 훈련으로 정했다(Issue #3, Wiki ADR-007).
     #   connectTimeout=3000  TCP 연결을 3초 안에 못 맺으면 포기한다.
     #   socketTimeout=10000  응답이 10초 동안 오지 않으면 끊는다. MySQL이 멈춰(pause) 응답이
     #                        없을 때 요청 스레드가 무한히 매달리지 않게 한다. 10초보다 오래
