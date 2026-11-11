@@ -3,12 +3,18 @@ global:
   scrape_interval: 5s
   evaluation_interval: 5s
 
+# 알림 규칙. 디렉터리는 compose.yaml에서 /etc/prometheus로 마운트된다.
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
 scrape_configs:
-  # 호스트에서 bootRun으로 띄운 앱. 4단계에서 앱을 컨테이너로 옮기면 주소를 바꾼다.
+  # 호스트에서 bootRun으로 띄운 앱의 관리 포트(8082). 요청을 받는 8081과 스레드 풀이 따로라서,
+  # 요청 처리 스레드가 고갈돼도 지표를 계속 수집할 수 있다(0단계 장애 훈련에서 발견).
+  # 4단계에서 앱을 컨테이너로 옮기면 주소를 바꾼다.
   - job_name: board-app
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ["host.docker.internal:8081"]
+      - targets: ["host.docker.internal:8082"]
 
   - job_name: mysql
     static_configs:

@@ -23,7 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
  * <p>PingControllerTest와 애너테이션 구성이 같아서 Spring 테스트 컨텍스트(와 MySQL 컨테이너)를 함께
  * 쓴다.
  */
-@SpringBootTest
+// 앱은 지표를 별도 관리 포트(8082)로 내보낸다. MockMvc는 본 컨텍스트에만 요청을 보내므로,
+// 테스트에서는 관리 포트를 비워(같은 포트) actuator가 본 컨텍스트에 있게 한다.
+// 두 통합 테스트가 컨텍스트를 함께 쓰도록 같은 값을 준다.
+@SpringBootTest(properties = "management.server.port=")
 @AutoConfigureMockMvc
 @AutoConfigureMetrics
 @Import(TestcontainersConfiguration.class)
