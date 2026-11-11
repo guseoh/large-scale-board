@@ -39,6 +39,10 @@ services:
       - mysql-data:/var/lib/mysql
       - ./infra/mysql/conf.d:/opt/board/conf.d:ro
       - ./infra/mysql/init:/docker-entrypoint-initdb.d:ro
+      # datagen이 만든 CSV를 LOAD DATA INFILE로 읽는 폴더(secure_file_priv).
+      # 서버는 이 폴더 밖의 파일을 읽지 않는다. 읽기 전용(:ro)으로 두면 MySQL 엔트리포인트가
+      # 이 폴더의 소유자를 바꾸다 실패해 기동하지 못한다.
+      - ./data/csv:/var/lib/mysql-files
     # 앱은 호스트에서 제한 없이 돈다. 0~3단계의 병목이 MySQL 쪽에서 먼저 나타나도록 의도한 구성이다.
     deploy:
       resources:
