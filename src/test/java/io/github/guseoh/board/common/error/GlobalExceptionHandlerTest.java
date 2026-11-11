@@ -32,8 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 오류 응답 형식(6절)을 MockMvc로 검증한다. 예외를 일부러 던지는 테스트 전용 컨트롤러를 쓴다.
  *
- * <p>테스트 클래스 안의 정적 중첩 컨트롤러는 Spring Boot의 TestTypeExcludeFilter가 컴포넌트 스캔에서 빼므로,
- * 다른 테스트의 컨텍스트에 섞이지 않는다. 여기서만 {@code @Import}로 등록한다.
+ * <p>테스트 클래스 안의 정적 중첩 컨트롤러는 Spring Boot의 TestTypeExcludeFilter가 컴포넌트
+ * 스캔에서 빼므로, 다른 테스트의 컨텍스트에 섞이지 않는다. 여기서만 {@code @Import}로 등록한다.
  */
 @WebMvcTest(controllers = GlobalExceptionHandlerTest.FailingController.class)
 @Import({GlobalExceptionHandlerTest.FailingController.class, LoggingConfig.class})
@@ -172,7 +172,8 @@ class GlobalExceptionHandlerTest {
 
 		@GetMapping("/test/db-down")
 		void dbDown() {
-			throw new CannotGetJdbcConnectionException("HikariPool-1 - Connection is not available, request timed out after 30000ms");
+			throw new CannotGetJdbcConnectionException(
+					"HikariPool-1 - Connection is not available, request timed out after 30000ms");
 		}
 	}
 }

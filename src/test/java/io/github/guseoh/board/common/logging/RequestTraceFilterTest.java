@@ -39,13 +39,15 @@ class RequestTraceFilterTest {
 		Result result = run(null);
 
 		assertThat(result.traceIdSeenByChain()).matches("^[0-9a-f]{32}$");
-		assertThat(result.response().getHeader(TraceContext.HEADER)).isEqualTo(result.traceIdSeenByChain());
+		assertThat(result.response().getHeader(TraceContext.HEADER))
+				.isEqualTo(result.traceIdSeenByChain());
 	}
 
 	@Test
 	void 형식에_맞지_않는_헤더는_버리고_새로_만든다() throws Exception {
 		// 개행을 넣어 가짜 로그 줄을 만드는 시도, 너무 짧은 값, 너무 긴 값
-		for (String forged : new String[] {"abc\nFAKE LOG LINE", "short", "x".repeat(65), "has space 1234"}) {
+		String[] forgedIds = {"abc\nFAKE LOG LINE", "short", "x".repeat(65), "has space 1234"};
+		for (String forged : forgedIds) {
 			Result result = run(forged);
 
 			assertThat(result.traceIdSeenByChain()).isNotEqualTo(forged).matches("^[0-9a-f]{32}$");
@@ -63,14 +65,17 @@ class RequestTraceFilterTest {
 	void 체인에서_예외가_나도_MDC를_지운다() {
 		MockFilterChain failingChain = new MockFilterChain() {
 			@Override
-			public void doFilter(jakarta.servlet.ServletRequest request, jakarta.servlet.ServletResponse response)
+			public void doFilter(
+					jakarta.servlet.ServletRequest request,
+					jakarta.servlet.ServletResponse response)
 					throws IOException {
 				throw new IOException("client aborted");
 			}
 		};
 
 		try {
-			filter.doFilter(new MockHttpServletRequest("GET", "/api/v1/ping"), new MockHttpServletResponse(), failingChain);
+			filter.doFilter(new MockHttpServletRequest("GET", "/api/v1/ping"),
+					new MockHttpServletResponse(), failingChain);
 		} catch (Exception ignored) {
 			// 예외 전파 여부가 아니라 MDC 정리 여부를 본다
 		}
@@ -88,7 +93,8 @@ class RequestTraceFilterTest {
 		// 체인 안(= 컨트롤러가 실행되는 시점)에서 MDC에 어떤 값이 보이는지 기록한다.
 		MockFilterChain chain = new MockFilterChain() {
 			@Override
-			public void doFilter(jakarta.servlet.ServletRequest req, jakarta.servlet.ServletResponse res) {
+			public void doFilter(
+					jakarta.servlet.ServletRequest req, jakarta.servlet.ServletResponse res) {
 				seen.set(MDC.get(TraceContext.MDC_KEY));
 			}
 		};

@@ -11,11 +11,12 @@ import org.springframework.core.Ordered;
 public class LoggingConfig {
 
 	/**
-	 * 추적 필터를 모든 필터보다 먼저 실행한다. 1단계에서 들어올 Spring Security 필터 체인보다도 앞이어야
-	 * 인증 실패 로그에도 traceId가 붙는다.
+	 * 추적 필터를 모든 필터보다 먼저 실행한다. 1단계에서 들어올 Spring Security 필터 체인보다도
+	 * 앞이어야 인증 실패 로그에도 traceId가 붙는다.
 	 */
 	@Bean
-	public FilterRegistrationBean<RequestTraceFilter> requestTraceFilter(LoggingProperties properties) {
+	public FilterRegistrationBean<RequestTraceFilter> requestTraceFilter(
+			LoggingProperties properties) {
 		FilterRegistrationBean<RequestTraceFilter> registration =
 				new FilterRegistrationBean<>(new RequestTraceFilter(properties.accessEnabled()));
 		registration.setOrder(Ordered.HIGHEST_PRECEDENCE);

@@ -18,7 +18,9 @@ public final class TraceContext {
 	private TraceContext() {
 	}
 
-	/** 현재 스레드의 추적 ID. 필터를 거치지 않은 스레드(스케줄러, 별도 스레드 풀)에서는 null이다. */
+	/**
+	 * 현재 스레드의 추적 ID. 필터를 거치지 않은 스레드(스케줄러, 별도 스레드 풀)에서는 null이다.
+	 */
 	public static String currentTraceId() {
 		return MDC.get(MDC_KEY);
 	}

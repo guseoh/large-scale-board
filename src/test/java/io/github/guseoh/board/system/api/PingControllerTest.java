@@ -31,7 +31,8 @@ class PingControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.status").value("UP"))
 				// 필터가 FilterRegistrationBean으로 실제 등록됐는지 확인한다
-				.andExpect(header().string(TraceContext.HEADER, org.hamcrest.Matchers.matchesPattern("^[0-9a-f]{32}$")));
+				.andExpect(header().string(TraceContext.HEADER,
+						org.hamcrest.Matchers.matchesPattern("^[0-9a-f]{32}$")));
 	}
 
 	@Test
