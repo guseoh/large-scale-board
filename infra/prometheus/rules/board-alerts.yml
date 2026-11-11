@@ -1,0 +1,56 @@
+# 알림 규칙. Alertmanager와 알림 채널은 두지 않고 Prometheus의 Alerts 화면
+# (http://localhost:9090/alerts)에서 확인한다. 배우려는 것은 "어떤 조건을 알림으로 만들 것인가"다.
+# (D0-18, Step-0-Design 14절)
+#
+# 유지 시간(for)이 짧으면 순간 튐에도 켜지고, 길면 탐지가 늦다.
+# 장애 훈련에서 탐지 시간을 재며 조정한다.
+# 평가 주기는 5초다(prometheus.yml의 evaluation_interval).
+groups:
+  - name: board
+    rules:
+      - alert: MySQLDown
+        # exporter가 MySQL에 접속하지 못하면 0이 된다.
+        expr: mysql_up == 0
+        for: 15s
+        labels:
+          severity: critical
+        annotations:
+          summary: "MySQL에 접속할 수 없다"
+          runbook: "Wiki: 런북-MySQL-중단"
+
+      - alert: AppDown
+        # Prometheus가 앱의 /actuator/prometheus를 수집하지 못하면 0이 된다.
+        expr: up{job="board-app"} == 0
+        for: 15s
+        labels:
+          severity: critical
+        annotations:
+          summary: "앱 지표를 수집할 수 없다 (앱 중지 또는 응답 없음)"
+
+      - alert: HikariPending
+        # 커넥션을 기다리는 스레드가 있다. 풀이 모자라거나 DB가 느리거나 응답하지 않는다.
+        expr: max(hikaricp_connections_pending{application="board"}) > 0
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "커넥션 풀 대기 스레드 {{ $value }}개"
+
+      - alert: HikariTimeout
+        # 최근 1분 동안 커넥션 획득 타임아웃이 1건 이상. 요청이 실패(503 DB_UNAVAILABLE)하고 있다.
+        expr: sum(increase(hikaricp_connections_timeout_total{application="board"}[1m])) >= 1
+        labels:
+          severity: critical
+        annotations:
+          summary: "최근 1분 커넥션 획득 타임아웃 {{ $value }}건"
+
+      - alert: HighErrorRate
+        # 5xx 비율 5% 초과. 요청이 없으면 0/0이라 평가되지 않는다.
+        expr: |
+          sum(rate(http_server_requests_seconds_count{application="board", status=~"5.."}[1m]))
+            / sum(rate(http_server_requests_seconds_count{application="board"}[1m])) > 0.05
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "5xx 비율 {{ $value | humanizePercentage }}"
