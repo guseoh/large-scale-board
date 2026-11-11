@@ -1,1 +1,5 @@
 rootProject.name = 'large-scale-board'
+
+// 루트 프로젝트 = 게시판 앱. 하위 프로젝트는 앱 실행 파일에 섞이면 안 되는 코드를 분리한다. (D0-01)
+include 'board-id'  // Snowflake ID. 순수 Java 라이브러리, Spring 의존 없음
+include 'datagen'   // 데이터 생성기. 웹 서버 없이 실행하는 Spring Boot 프로그램

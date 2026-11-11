@@ -23,6 +23,15 @@ server:
 
 spring.lifecycle.timeout-per-shutdown-phase: 20s
 
+logging:
+  pattern:
+    # Spring Boot 기본 로그 패턴의 상관관계 ID 자리에 MDC traceId를 넣는다. 추적 필터 밖의 스레드에서는 빈 괄호다.
+    correlation: "[%X{traceId:-}] "
+
+board:
+  logging:
+    access-enabled: true
+
 management:
   endpoints:
     web:
