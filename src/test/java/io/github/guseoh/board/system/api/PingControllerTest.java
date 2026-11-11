@@ -9,6 +9,7 @@ import io.github.guseoh.board.TestcontainersConfiguration;
 import io.github.guseoh.board.common.logging.TraceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.micrometer.metrics.test.autoconfigure.AutoConfigureMetrics;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
@@ -16,9 +17,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * 실제 MySQL(Testcontainers)과 함께 앱 전체를 띄워 ping API와 추적 필터 등록을 확인한다.
+ *
+ * <p>{@code @AutoConfigureMetrics}는 이 테스트에 필요 없지만, PrometheusEndpointTest와 구성을 맞춰
+ * 테스트 컨텍스트와 MySQL 컨테이너를 한 번만 띄우려고 붙인다.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureMetrics
 @Import(TestcontainersConfiguration.class)
 class PingControllerTest {
 
