@@ -1,0 +1,19 @@
+# 수집 주기 5초: 부하 실험(3분)에서 변화를 볼 만큼 촘촘하고, 로컬 저장 공간을 크게 쓰지 않는다.
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  # 호스트에서 bootRun으로 띄운 앱. 4단계에서 앱을 컨테이너로 옮기면 주소를 바꾼다.
+  - job_name: board-app
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8081"]
+
+  - job_name: mysql
+    static_configs:
+      - targets: ["mysqld-exporter:9104"]
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
