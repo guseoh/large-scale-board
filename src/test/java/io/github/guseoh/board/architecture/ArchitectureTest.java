@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
- * 실제 앱 코드에 R1~R6을 적용한다. 테스트 코드는 검사하지 않는다.
+ * 실제 앱 코드에 R1~R7을 적용한다. 테스트 코드는 검사하지 않는다.
  */
 class ArchitectureTest {
 
@@ -56,5 +56,10 @@ class ArchitectureTest {
 	@Test
 	void R6_Transactional은_application에만_있다() {
 		ArchitectureRules.r6TransactionalResidesInApplication(BASE).check(classes);
+	}
+
+	@Test
+	void R7_api의_ID_필드는_String이다() {
+		ArchitectureRules.r7IdsInApiAreStrings(BASE).check(classes);
 	}
 }

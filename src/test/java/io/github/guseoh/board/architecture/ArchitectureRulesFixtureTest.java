@@ -104,6 +104,19 @@ class ArchitectureRulesFixtureTest {
 				.doesNotContain("archfixture.r6.order.application.OrderService");
 	}
 
+	@Test
+	void R7은_api의_long_ID_필드를_잡고_String_ID와_일반_숫자는_허용한다() {
+		String base = FIXTURE + ".r7";
+		EvaluationResult result = evaluate(ArchitectureRules.r7IdsInApiAreStrings(base), base);
+
+		assertThat(result.hasViolation()).isTrue();
+		assertThat(report(result))
+				.contains("archfixture.r7.order.api.OrderResponse.orderId")
+				.contains("archfixture.r7.order.api.OrderResponse.id")
+				.doesNotContain("customerId")
+				.doesNotContain("likeCount");
+	}
+
 	private static EvaluationResult evaluate(ArchRule rule, String fixturePackage) {
 		JavaClasses classes = new ClassFileImporter().importPackages(fixturePackage);
 		return rule.evaluate(classes);
