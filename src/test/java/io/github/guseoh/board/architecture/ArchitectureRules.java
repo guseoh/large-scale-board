@@ -5,6 +5,7 @@ import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPac
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideOutsideOfPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
@@ -16,7 +17,7 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.CompositeArchRule;
 
 /**
- * 아키텍처 규칙 R1~R6. (Step-0-Design 5절)
+ * 아키텍처 규칙 R1~R7. (Step-0-Design 5절)
  *
  * <p>모든 규칙이 기준 패키지를 인자로 받는다. 실제 코드({@code io.github.guseoh.board})와 규칙을
  * 일부러 어긴 픽스처 ({@code io.github.guseoh.archfixture.*})에 같은 규칙을 적용해, 규칙이 실제로
@@ -141,5 +142,18 @@ public final class ArchitectureRules {
 				.allowEmptyShould(true);
 		return CompositeArchRule.of(onClasses).and(onMethods)
 				.as("R6 @Transactional은 application 패키지에만 둔다");
+	}
+
+	/**
+	 * R7. api 패키지의 ID 필드({@code id}, {@code xxxId})는 {@code String}이다. Snowflake ID가 2^53을
+	 * 넘어 JavaScript에서 손상되기 때문이다(ADR-005). 좋아요 수 같은 진짜 숫자는 이름이 다르므로
+	 * 막지 않는다.
+	 */
+	public static ArchRule r7IdsInApiAreStrings(String base) {
+		return fields().that().areDeclaredInClassesThat().resideInAPackage(base + ".*.api..")
+				.and().haveNameMatching("(id|.*Id)")
+				.should().haveRawType(String.class)
+				.as("R7 api 패키지의 ID 필드는 String이다 (ADR-005)")
+				.allowEmptyShould(true);
 	}
 }
