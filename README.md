@@ -14,6 +14,15 @@
 
 작업 시 구체적인 기준은 [루트 AGENTS.md](AGENTS.md), [학습 인수인계](docs/PROJECT_HANDOFF.md)를 따릅니다. 이 규칙은 **앞으로의 진행 순서**를 바꾸는 것이며, 기존 로드맵 Phase 0~13, 완료된 실험과 ADR의 이력을 삭제하거나 무효화하지 않습니다.
 
+## 작업 전 Wiki 확인
+
+새 학습 단계나 설계 변경을 시작할 때는 **README와 [AGENTS.md](AGENTS.md)의 현재 규칙을 먼저 확인**하고, 다음 Wiki에서 관련된 결정과 실험 근거를 찾아봅니다. Wiki 전체를 의무적으로 정독하거나 과거의 복잡한 설계를 현재 REST API에 그대로 적용하지 않습니다.
+
+- **[Large-Board 프로젝트 Wiki](https://github.com/guseoh/large-scale-board/wiki):** 과거 단계별 설계, ADR, 실험 결과, 작업 인수인계의 상세 원본입니다. 현재 주제와 관련된 문서를 확인하고, 실제 구현·테스트·실험 상태는 최신 코드와 실행 결과로 검증합니다.
+- **[중앙 AI Wiki — 백엔드 학습 현황](https://github.com/guseoh/cs/blob/main/Wiki/projects/backend-learning.md):** 프로젝트 간 공통 학습 방향과 진행 원칙을 확인합니다. 특히 [BLR-0017 — REST API 기본기 우선 결정](https://github.com/guseoh/cs/blob/main/Wiki/decisions/BLR-0017.md)에서 최신 학습 순서와 과잉 설계 방지 근거를 확인합니다.
+
+**적용 원칙:** 현재 학습은 작은 Article REST API부터 시작합니다. Wiki의 Snowflake·대용량 처리·장애 실험 기록은 참고할 수 있지만, 새 기능의 필수 선행 조건은 아닙니다. 기록 간 차이가 있으면 작성 시점과 최신 코드·테스트를 대조하고, 과거 결정을 현재 요구사항으로 추정하지 않습니다.
+
 ## 현행 학습 순서
 
 ```text
@@ -100,4 +109,5 @@ docker compose up -d
 - [상세 로드맵](docs/ROADMAP.md): 기존 Phase 0~13의 상세 범위·완료 기준
 - [학습 인수인계](docs/PROJECT_HANDOFF.md): 코드 제공 방식·설계 학습·Git 운영
 - [ChatGPT 프로젝트 지침 참고본](docs/CHATGPT_PROJECT_INSTRUCTIONS.md): 프로젝트 설정에 적용할 지침 텍스트
-- [GitHub Wiki](https://github.com/guseoh/large-scale-board/wiki): 장기 보존할 설계 변경·실험 기록
+- [프로젝트 GitHub Wiki](https://github.com/guseoh/large-scale-board/wiki): 설계 ADR·실험 결과·과거 인수인계 원본
+- [중앙 AI Wiki](https://github.com/guseoh/cs/tree/main/Wiki): 공통 학습 결정 및 현재 진행 방향 (특히 [BLR-0017](https://github.com/guseoh/cs/blob/main/Wiki/decisions/BLR-0017.md))
