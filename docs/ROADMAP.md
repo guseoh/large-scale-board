@@ -8,6 +8,8 @@
 
 ---
 
+> **2026-11-21 현행 진행 규칙:** 현재는 Spring REST API 기초 S01~S08(Article CRUD·DTO·Validation·JPA 기초·트랜잭션·페이징·기본 예외·테스트)를 최우선으로 합니다. 아래 Project Design Baseline은 **대규모 실험 단계 진입 시** 필요한 수준으로 수행합니다. 기초 REST API 구현 전에 전체 Domain Map·ERD·NFR·샤딩 설계를 완성하거나 기존 Snowflake/관측 체계를 의무적으로 적용하지 않습니다. 아래 Phase 0~13의 실험 목표와 완료 기준은 **장기 로드맵으로 그대로 보존**합니다. 과거 완료된 실험을 다시 완료 처리하거나 무조건 재실행하지 않습니다. 상세 지침은 [README](../README.md)와 [PROJECT_HANDOFF](PROJECT_HANDOFF.md)를 따릅니다.
+
 ## Project Design Baseline
 
 Phase 구현에 들어가기 전에 **대규모 게시판이라는 단순한 도메인을 충분히 이해하고, 이후 시스템 발전의 기준선으로 사용할 수 있을 정도의 초기 프로젝트 설계**를 먼저 만든다.
