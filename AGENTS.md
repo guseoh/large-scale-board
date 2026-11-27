@@ -27,3 +27,11 @@
 ## 4. 현재의 다음 작업
 
 환경(S01) 확인 후 **S02 Article REST API를 최소 구현**합니다. `GET`/`POST` 요청 처리부터 시작하여 DTO·Validation, JPA CRUD, 트랜잭션, 페이징, 예외 처리·테스트를 순차적으로 추가합니다. 인증 구현이나 대규모 적재 실험은 이 API 학습의 필수 선행 작업이 아닙니다.
+
+## Obsidian 및 중앙 AI Wiki 접근
+
+- 이 저장소의 프로젝트 규칙을 진입점으로 사용한다. 설치된 공식 [Obsidian Agent Skills](https://github.com/obsidianmd/obsidian-skills)는 필요한 경우에만 활용한다.
+- 기존 결정·설계·장애·후속 작업을 조회할 때 [중앙 Wiki 실행 계약](https://github.com/guseoh/cs/blob/main/Wiki/AGENTS.md)과 [인덱스](https://github.com/guseoh/cs/blob/main/Wiki/index.md)를 따른다. 로컬 Vault와 CLI 접근이 허용되고 동기화 상태를 확인할 수 있으면 해당 Vault에서 필요한 기록만 읽는다. 그렇지 않으면 최신 GitHub 원문을 조회한다.
+- 스킬은 접근 권한이나 MCP 서버가 아니다. CLI가 없거나 앱 실행·권한·동기화 확인이 불가능하면 제한을 보고하고 허용된 GitHub/파일 읽기 경로를 사용한다.
+- 기존 프로젝트 권위 원본, 기록 모드, 승인·PR·검증 절차는 그대로 유지한다. Wiki 쓰기는 중앙 규칙에 따르며 로컬 main 직접 편집이나 자동 병합으로 우회하지 않는다. 사용자 승인 없이 앱 설정·플러그인·CSS·파일 삭제를 수행하지 않는다.
+- 이 학습 저장소는 중앙 정책에서 별도 자동 수집 대상으로 등록되어 있지 않다. 기존 승인된 학습 결정만 재사용하고 명시적 요청 또는 기존 승인 범위 밖의 중앙 Wiki 쓰기는 하지 않는다. 사용자 직접 구현 원칙을 유지한다.
